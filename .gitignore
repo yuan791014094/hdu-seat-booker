@@ -1,0 +1,4 @@
+# 本地 Windows 脚本，不需要上传
+*.bat
+__pycache__/
+*.pyc

@@ -1,0 +1,58 @@
+# 杭电图书馆自动抢座配置文件
+# 修改完后保存，然后运行 book.py
+
+# ===== 账号 =====
+# 本地运行：直接填写
+# GitHub Actions：留空，密码通过 Secrets 环境变量传入（更安全）
+account:
+  username: "23060830"
+  password: ""  # 本地调试可填，上传GitHub时留空
+
+# ===== 预约时间 =====
+booking:
+  # 预约日期：today（今天）或 tomorrow（明天）
+  date: "tomorrow"
+
+  # 开始时间（24小时制，整点）
+  begin_hour: 8
+
+  # 使用时长（小时），最少1，最多8
+  duration_hours: 4
+
+# ===== 座位优先级列表 =====
+# 按顺序尝试，前面的抢不到就抢下一个
+# seat_id 是系统内部ID，seat_num 是座位号（显示用）
+# room_name 是阅览室名称（显示用）
+#
+# 如何查找座位ID：运行 python query_seats.py 可以列出所有座位及其ID
+seats_priority:
+  - room_name: "格物E堂（二楼东）"
+    seat_num: "424"
+    seat_id: "62564"
+    category_id: "607"
+
+  - room_name: "格物E堂（二楼东）"
+    seat_num: "422"
+    seat_id: "62562"
+    category_id: "607"
+
+  - room_name: "格物E堂（二楼东）"
+    seat_num: "419"
+    seat_id: "62559"
+    category_id: "607"
+
+# ===== 抢座设置 =====
+settings:
+  # 定时抢座时间（每天几点开始抢，通常图书馆在某个时间点放出次日座位）
+  # 格式：HH:MM，例如 "00:00" 表示每天凌晨抢明天的座位
+  trigger_time: "07:00"
+
+  # 抢座重试次数（抢不到时连续尝试多少次）
+  max_retries: 30
+
+  # 每次重试间隔（秒）
+  retry_interval: 1
+
+  # 系统参数（不要修改）
+  category_id: "591"
+  content_id: "3"
