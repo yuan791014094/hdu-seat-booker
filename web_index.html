@@ -1,0 +1,1121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>杭电自习室抢座</title>
+  <style>
+    :root {
+      --primary: #cc785c;
+      --primary-active: #a9583e;
+      --ink: #141413;
+      --body: #3d3d3a;
+      --muted: #6c6a64;
+      --muted-soft: #8e8b82;
+      --hairline: #e6dfd8;
+      --hairline-soft: #ebe6df;
+      --canvas: #faf9f5;
+      --surface-soft: #f5f0e8;
+      --surface-card: #efe9de;
+      --surface-cream-strong: #e8e0d2;
+      --surface-dark: #181715;
+      --surface-dark-elevated: #252320;
+      --surface-dark-soft: #1f1e1b;
+      --on-primary: #ffffff;
+      --on-dark: #faf9f5;
+      --on-dark-soft: #a09d96;
+      --accent-teal: #5db8a6;
+      --success: #5db872;
+      --warning: #d4a017;
+      --error: #c64545;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-soft: 0 1px 3px rgba(20, 20, 19, 0.08);
+      font-family: Inter, "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(245, 240, 232, 0.82), rgba(250, 249, 245, 0.95) 260px),
+        var(--canvas);
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    button {
+      min-height: 40px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 0 14px;
+      background: var(--canvas);
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    button:hover { border-color: var(--primary); }
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.45; transform: none; }
+
+    button.primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    button.primary:hover, button.primary:active {
+      border-color: var(--primary-active);
+      background: var(--primary-active);
+    }
+
+    button.danger {
+      border-color: var(--error);
+      background: var(--error);
+      color: var(--on-primary);
+    }
+
+    input, select, textarea {
+      min-height: 40px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--canvas);
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(204, 120, 92, 0.16);
+    }
+
+    input, select { padding: 0 12px; }
+    select { min-width: 230px; }
+
+    textarea {
+      width: 100%;
+      min-height: 365px;
+      resize: vertical;
+      padding: 16px;
+      font-family: "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+      font-size: 13px;
+      line-height: 1.58;
+      background: #fffaf4;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--hairline-soft);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    main {
+      width: min(1320px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 22px 0 36px;
+    }
+
+    .topNav {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--hairline);
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brandMark {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--ink);
+      color: var(--canvas);
+      font-family: Georgia, serif;
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .brandText {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .brandTitle {
+      font-family: "Cormorant Garamond", "Times New Roman", "Microsoft YaHei", serif;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .brandMeta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .navActions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .summaryBand {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .introPanel {
+      min-height: 164px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      background: var(--surface-card);
+    }
+
+    .introPanel h1 {
+      margin: 0;
+      max-width: 760px;
+      font-family: "Cormorant Garamond", "Times New Roman", "Microsoft YaHei", serif;
+      font-size: clamp(34px, 4.8vw, 58px);
+      font-weight: 500;
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .introFooter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      color: var(--body);
+      font-size: 14px;
+    }
+
+    .targetPanel {
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      background: var(--surface-dark);
+      color: var(--on-dark);
+    }
+
+    .targetPanel h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .metricList {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 12px;
+      align-items: baseline;
+      min-height: 28px;
+      color: var(--on-dark);
+    }
+
+    .metricLabel {
+      color: var(--on-dark-soft);
+      font-size: 13px;
+    }
+
+    .metricValue {
+      min-width: 0;
+      font-size: 15px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .layoutGrid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      background: rgba(250, 249, 245, 0.86);
+      padding: 18px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panelHeader {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .panelTitle {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .panelNote {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .toolbar.spaced { margin-top: 12px; }
+
+    .parameterBox {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 12px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--surface-soft);
+      color: var(--body);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .parameterLine {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .parameterLine code {
+      color: var(--ink);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .roomChips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .chip, .statusPill {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      background: var(--surface-cream-strong);
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .statusPill {
+      background: rgba(93, 184, 166, 0.16);
+      color: #257768;
+    }
+
+    .editorActions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .outputPanel {
+      background: var(--surface-dark);
+      color: var(--on-dark);
+      border-color: var(--surface-dark);
+    }
+
+    .outputPanel .panelTitle { color: var(--on-dark); }
+    .outputPanel .panelNote { color: var(--on-dark-soft); }
+
+    .outputBox {
+      min-height: 431px;
+      max-height: 610px;
+      overflow: auto;
+      margin: 0;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: var(--surface-dark-soft);
+      color: #ebe6df;
+      font-family: "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .bookingsWrap {
+      min-height: 168px;
+      overflow: auto;
+    }
+
+    .emptyState {
+      margin: 0;
+      padding: 18px;
+      border: 1px dashed var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cancelCell { width: 72px; text-align: right; }
+
+    .timedInfo {
+      display: grid;
+      gap: 8px;
+      min-height: 78px;
+      margin-bottom: 14px;
+      color: var(--body);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .timedRow {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .timedLabel { color: var(--muted); }
+
+    .logTail {
+      margin-top: 12px;
+      max-height: 170px;
+      overflow: auto;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: var(--surface-dark);
+      color: var(--on-dark);
+      font-family: "JetBrains Mono", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .seatPanel { padding: 0; overflow: hidden; }
+
+    .seatTop {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px;
+      border-bottom: 1px solid var(--hairline);
+      background: var(--surface-soft);
+    }
+
+    .seatContent {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.55fr);
+      gap: 0;
+      align-items: stretch;
+      min-height: 560px;
+    }
+
+    .mapColumn {
+      min-width: 0;
+      padding: 18px;
+      border-right: 1px solid var(--hairline);
+    }
+
+    .tableColumn {
+      min-width: 0;
+      padding: 18px;
+      background: rgba(245, 240, 232, 0.54);
+    }
+
+    .mapSectionTitle {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 0 0 10px;
+    }
+
+    .mapSectionTitle h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .mapMeta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .checkboxLine {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--body);
+      font-size: 13px;
+      user-select: none;
+    }
+
+    .checkboxLine input {
+      min-height: auto;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--primary);
+    }
+
+    .mapPick {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      background: #fffaf4;
+      color: var(--body);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .mapWrap {
+      overflow: auto;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: #fffaf4;
+      padding: 12px;
+    }
+
+    .mapWrap svg {
+      display: block;
+      width: 100%;
+      min-width: 860px;
+      height: auto;
+      border-radius: var(--radius-sm);
+      background: #fffaf4;
+    }
+
+    .seatNode rect {
+      fill: rgba(37, 119, 104, 0.88);
+      stroke: #fffaf4;
+      stroke-width: 0.24;
+      vector-effect: non-scaling-stroke;
+      cursor: pointer;
+    }
+
+    .seatNode:hover rect, .seatNode.active rect {
+      fill: var(--primary);
+      stroke: var(--ink);
+      stroke-width: 0.34;
+    }
+
+    .seatNode text {
+      display: none;
+      pointer-events: none;
+      font-family: Inter, Arial, sans-serif;
+      font-weight: 700;
+      fill: var(--ink);
+      paint-order: stroke;
+      stroke: #fffaf4;
+      stroke-width: 0.26;
+      letter-spacing: 0;
+    }
+
+    .mapWrap.showLabels .seatNode text,
+    .seatNode:hover text,
+    .seatNode.active text {
+      display: block;
+    }
+
+    .seatSearch {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .seatTable {
+      max-height: 590px;
+      overflow: auto;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--canvas);
+    }
+
+    .seatRow { cursor: pointer; }
+    .seatRow:hover { background: var(--surface-soft); }
+    .seatRow.active { background: rgba(204, 120, 92, 0.14); }
+
+    .mono {
+      font-family: "JetBrains Mono", Consolas, "SFMono-Regular", monospace;
+      font-size: 12px;
+    }
+
+    .muted { color: var(--muted); }
+
+    @media (max-width: 1060px) {
+      main { width: min(100vw - 24px, 1320px); padding-top: 14px; }
+      .summaryBand, .layoutGrid, .twoCol, .seatContent { grid-template-columns: 1fr; }
+      .mapColumn { border-right: 0; border-bottom: 1px solid var(--hairline); }
+      .targetPanel { min-height: auto; }
+      .outputBox { min-height: 310px; }
+      textarea { min-height: 300px; }
+    }
+
+    @media (max-width: 680px) {
+      .topNav { align-items: flex-start; flex-direction: column; padding-bottom: 14px; }
+      .navActions { justify-content: flex-start; width: 100%; }
+      .brandTitle { font-size: 24px; white-space: normal; }
+      .brandMeta { white-space: normal; }
+      .introPanel, .targetPanel, .panel, .mapColumn, .tableColumn, .seatTop { padding: 14px; }
+      .introPanel h1 { font-size: 34px; }
+      .toolbar, .editorActions, .navActions { display: grid; grid-template-columns: 1fr; }
+      button, select, input { width: 100%; }
+      .metric, .timedRow, .parameterLine { grid-template-columns: 1fr; gap: 4px; }
+      .mapWrap svg { min-width: 720px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header class="topNav">
+    <div class="brand">
+      <div class="brandMark" aria-hidden="true">*</div>
+      <div class="brandText">
+        <div class="brandTitle">杭电自习室抢座</div>
+        <div class="brandMeta">围绕宋韵云图（四楼）的本地预约工作台</div>
+      </div>
+    </div>
+    <div class="navActions">
+      <button onclick="loadAll()">刷新页面数据</button>
+      <button class="primary" onclick="loadSeatStatus()">读取座位和平面图</button>
+    </div>
+  </header>
+
+  <section class="summaryBand">
+    <div class="introPanel">
+      <h1>配置座位，核对编号，到点自动抢后天的位置。</h1>
+      <div class="introFooter">
+        <span id="status" class="statusPill">加载中</span>
+        <span id="roomFocus" class="muted">默认房间加载中</span>
+      </div>
+    </div>
+    <aside class="targetPanel">
+      <h2>当前目标</h2>
+      <div class="metricList">
+        <div class="metric"><div class="metricLabel">预约时段</div><div id="targetTime" class="metricValue">等待加载</div></div>
+        <div class="metric"><div class="metricLabel">定时触发</div><div id="triggerTime" class="metricValue">20:00</div></div>
+        <div class="metric"><div class="metricLabel">每日任务</div><div id="dailyTaskState" class="metricValue">等待查询</div></div>
+        <div class="metric"><div class="metricLabel">本次进程</div><div id="processState" class="metricValue">等待查询</div></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="layoutGrid">
+    <div class="panel">
+      <div class="panelHeader">
+        <div>
+          <h2 class="panelTitle">booking.json</h2>
+          <p class="panelNote">这里决定真正预约哪个房间和哪个显示座位号。</p>
+        </div>
+      </div>
+
+      <div class="parameterBox">
+        <div class="parameterLine">
+          <code>room_name</code>
+          <div id="bookingHelp" class="roomChips">加载中</div>
+        </div>
+        <div class="parameterLine">
+          <code>seat_num</code>
+          <div>填平面图或座位清单里的显示座位号，例如 <code>96</code>、<code>395</code>，不是 <code>seat_id</code>。</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <select id="candidateRoom" aria-label="候选房间"></select>
+        <input id="candidateSeat" placeholder="显示座位号，例如 96" aria-label="候选座位号">
+        <button onclick="addCandidateSeat()">添加候选座位</button>
+      </div>
+
+      <div class="editorActions">
+        <button class="primary" onclick="saveBookingJson()">保存</button>
+        <button onclick="dryRun()">验证座位</button>
+        <button class="primary" onclick="bookNow()">立即预约</button>
+        <button onclick="testBookCancel()">20 秒测试并取消</button>
+      </div>
+
+      <div class="toolbar spaced">
+        <textarea id="bookingJson" spellcheck="false" aria-label="booking.json 内容"></textarea>
+      </div>
+    </div>
+
+    <div class="panel outputPanel">
+      <div class="panelHeader">
+        <div>
+          <h2 class="panelTitle">输出</h2>
+          <p class="panelNote">保存、验证、预约、取消都会写到这里。</p>
+        </div>
+      </div>
+      <pre id="output" class="outputBox">准备好了。</pre>
+    </div>
+  </section>
+
+  <section class="twoCol">
+    <div class="panel">
+      <div class="panelHeader">
+        <div>
+          <h2 class="panelTitle">我的预约</h2>
+          <p class="panelNote">只有“未开始”和“使用中”会显示取消按钮。</p>
+        </div>
+        <button onclick="loadBookings()">刷新</button>
+      </div>
+      <div id="bookings" class="bookingsWrap"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panelHeader">
+        <div>
+          <h2 class="panelTitle">定时抢座</h2>
+          <p class="panelNote">默认每天 20:00 开始预约后天座位。</p>
+        </div>
+      </div>
+      <div id="timedStatus" class="timedInfo">加载中</div>
+      <div class="toolbar">
+        <button class="primary" onclick="startTimedBooking()">启动本次定时</button>
+        <button onclick="stopTimedBooking()">停止本次定时</button>
+        <button onclick="installDailyTask()">安装每日自动</button>
+        <button class="danger" onclick="removeDailyTask()">删除每日自动</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel seatPanel">
+    <div class="seatTop">
+      <div>
+        <h2 class="panelTitle">座位和平面图</h2>
+        <p class="panelNote">选择自习室后读取当前房间的显示座位号和实际 seat_id。点击座位点或表格行会同步到输出。</p>
+      </div>
+      <div class="toolbar">
+        <select id="roomSelect" aria-label="自习室"></select>
+        <button class="primary" onclick="loadSeatStatus()">读取</button>
+      </div>
+    </div>
+    <div class="seatContent">
+      <div id="roomMap" class="mapColumn muted">选择房间后点击“读取”。</div>
+      <div class="tableColumn">
+        <input id="seatSearch" class="seatSearch" placeholder="筛选显示座位号或 seat_id" oninput="filterSeatRows()">
+        <div id="seatStatus"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let defaultRoomName = "宋韵云图（四楼）";
+
+function out(value) {
+  $("output").textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(path, options);
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+  if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data.data;
+}
+
+async function loadStatus() {
+  const data = await api("/api/status");
+  defaultRoomName = data.default_room || defaultRoomName;
+  $("status").textContent = `已登录 uid=${data.uid}`;
+  $("roomFocus").textContent = `默认房间：${defaultRoomName}`;
+  $("targetTime").textContent = `${data.target.begin_text} ~ ${data.target.end_text}`;
+  $("triggerTime").textContent = data.trigger_time || "20:00";
+  $("bookingJson").value = JSON.stringify(data.booking_json, null, 2);
+  renderRoomOptions(data.rooms || []);
+  renderTimedStatus({trigger_time: data.trigger_time, process: data.timed_process});
+}
+
+function renderRoomOptions(rooms) {
+  const defaultOption = rooms.includes(defaultRoomName) ? defaultRoomName : (rooms[0] || "");
+  const currentRoom = $("roomSelect").value || defaultOption;
+  $("roomSelect").innerHTML = rooms.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`).join("") + `<option value="">全部自习室</option>`;
+  $("roomSelect").value = currentRoom;
+
+  const candidateRoom = $("candidateRoom").value || defaultOption;
+  $("candidateRoom").innerHTML = rooms.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`).join("");
+  $("candidateRoom").value = candidateRoom;
+
+  $("bookingHelp").innerHTML = rooms.length
+    ? rooms.map(name => `<span class="chip">${escapeHtml(name)}</span>`).join("")
+    : "<span class='muted'>暂无房间列表</span>";
+}
+
+async function loadBookings() {
+  const rows = await api("/api/bookings");
+  if (!rows.length) {
+    $("bookings").innerHTML = "<p class='emptyState'>暂无预约。</p>";
+    return;
+  }
+  $("bookings").innerHTML = `<table><thead><tr><th>ID</th><th>座位</th><th>时间</th><th>状态</th><th class="cancelCell"></th></tr></thead><tbody>` +
+    rows.map(r => `<tr>
+      <td class="mono">${escapeHtml(r.booking_id)}</td>
+      <td>${escapeHtml(r.room_name)} ${escapeHtml(r.seat_num)}</td>
+      <td>${escapeHtml(r.begin_text)} ~ ${escapeHtml(r.end_text)}</td>
+      <td>${escapeHtml(r.status_text)}</td>
+      <td class="cancelCell">${r.can_cancel ? `<button class="danger" onclick="cancelBooking('${escapeAttr(r.booking_id)}')">取消</button>` : ""}</td>
+    </tr>`).join("") +
+    `</tbody></table>`;
+}
+
+async function loadAll() {
+  try {
+    await loadStatus();
+    await loadBookings();
+    await loadTimedStatus(false);
+    out("已刷新页面数据。");
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function cancelBooking(id) {
+  if (!confirm(`确定取消预约 ${id}？`)) return;
+  try {
+    out(await api("/api/cancel", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({booking_id: id})}));
+    await loadBookings();
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function saveBookingJson() {
+  try {
+    JSON.parse($("bookingJson").value);
+    out(await api("/api/save-booking-json", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({json: $("bookingJson").value})}));
+    await loadStatus();
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+function addCandidateSeat() {
+  try {
+    const data = JSON.parse($("bookingJson").value);
+    const room = $("candidateRoom").value;
+    const seat = $("candidateSeat").value.trim();
+    if (!room) throw new Error("请先选择 room_name");
+    if (!seat) throw new Error("请填写 seat_num，例如 96");
+    if (!Array.isArray(data.seats_priority)) data.seats_priority = [];
+    data.seats_priority.push({room_name: room, seat_num: seat});
+    $("bookingJson").value = JSON.stringify(data, null, 2);
+    $("candidateSeat").value = "";
+    out(`已添加：${room} ${seat}。确认无误后点“保存”。`);
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function loadSeatStatus() {
+  try {
+    const data = await api("/api/seat-status", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({room_name: $("roomSelect").value})});
+    renderSeatStatus(data);
+    out({target: data.target, rooms: data.rooms.map(r => ({room_name: r.room_name, seats: r.seats.length, source: r.source || "current"}))});
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+function renderSeatStatus(data) {
+  $("seatSearch").value = "";
+  if (!data.rooms.length) {
+    $("roomMap").textContent = "当前时段系统没有返回这个房间，也没有找到可复用的历史平面图。";
+    $("seatStatus").innerHTML = "<p class='emptyState'>暂无座位清单。</p>";
+    return;
+  }
+  $("roomMap").innerHTML = data.rooms.map((room, idx) => renderMap(room, idx)).join("");
+  $("seatStatus").innerHTML = data.rooms.map(room => `<div class="mapSectionTitle"><h3>${escapeHtml(room.room_name)}</h3><span class="chip">${room.seats.length} 个座位</span></div><div class="seatTable"><table><thead><tr><th>显示座位号</th><th>实际 seat_id</th></tr></thead><tbody>` +
+    room.seats.map(s => `<tr class="seatRow" data-room="${escapeAttr(room.room_name)}" data-seat-num="${escapeAttr(s.seat_num)}" data-seat-id="${escapeAttr(s.seat_id)}"><td>${escapeHtml(s.seat_num)}</td><td class="mono">${escapeHtml(s.seat_id)}</td></tr>`).join("") +
+    `</tbody></table></div>`).join("");
+  bindSeatMapClicks();
+  bindSeatRows();
+}
+
+function renderMap(room, idx) {
+  const info = room.info || {};
+  const width = Number(info.width || 160);
+  const height = Number(info.height || 120);
+  const img = info.plan
+    ? `<image href="${escapeAttr(info.plan)}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="none" opacity="0.9"></image>`
+    : `<rect x="0" y="0" width="${width}" height="${height}" fill="#f5f0e8"></rect>`;
+  const seats = room.seats.map(s => {
+    const rawX = Number(s.x || 0);
+    const rawY = Number(s.y || 0);
+    const rawW = Number(s.w || 2);
+    const rawH = Number(s.h || 2);
+    const w = Math.max(rawW, 1.18);
+    const h = Math.max(rawH, 1.18);
+    const x = rawX + (rawW - w) / 2;
+    const y = rawY + (rawH - h) / 2;
+    const fs = Math.max(1.05, Math.min(1.6, Math.max(w, h) * 0.72));
+    return `<g class="seatNode" tabindex="0" data-room="${escapeAttr(room.room_name)}" data-seat-num="${escapeAttr(s.seat_num)}" data-seat-id="${escapeAttr(s.seat_id)}"><title>${escapeHtml(s.seat_num)} / ${escapeHtml(s.seat_id)}</title><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="0.18"></rect><text x="${x + w / 2}" y="${y + h / 2 + fs / 3}" text-anchor="middle" font-size="${fs}">${escapeHtml(s.seat_num)}</text></g>`;
+  }).join("");
+  const sourceText = room.source === "history"
+    ? `历史平面图，来自 bookingId ${room.history_booking_id || ""}`
+    : "当前接口返回的座位图";
+  return `<article class="mapBlock">
+    <div class="mapSectionTitle">
+      <h3>${escapeHtml(room.room_name)}</h3>
+      <label class="checkboxLine"><input type="checkbox" onchange="toggleSeatLabels(this, 'map-${idx}')">显示编号</label>
+    </div>
+    <div class="mapMeta"><span class="chip">${escapeHtml(sourceText)}</span><span>${room.seats.length} 个座位点</span></div>
+    <div id="pick-${idx}" class="mapPick">点击座位点查看显示座位号和实际 seat_id。</div>
+    <div id="map-${idx}" class="mapWrap"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(room.room_name)}">${img}${seats}</svg></div>
+  </article>`;
+}
+
+function bindSeatMapClicks() {
+  document.querySelectorAll(".seatNode").forEach(node => {
+    const show = () => selectSeat(node.dataset.room, node.dataset.seatNum, node.dataset.seatId);
+    node.addEventListener("click", show);
+    node.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        show();
+      }
+    });
+  });
+}
+
+function bindSeatRows() {
+  document.querySelectorAll(".seatRow").forEach(row => {
+    row.addEventListener("click", () => selectSeat(row.dataset.room, row.dataset.seatNum, row.dataset.seatId));
+  });
+}
+
+function selectSeat(room, seatNum, seatId) {
+  document.querySelectorAll(".seatNode.active").forEach(item => item.classList.remove("active"));
+  document.querySelectorAll(".seatRow.active").forEach(item => item.classList.remove("active"));
+  document.querySelectorAll(`.seatNode[data-room="${cssEscape(room)}"][data-seat-num="${cssEscape(seatNum)}"][data-seat-id="${cssEscape(seatId)}"]`).forEach(node => {
+    node.classList.add("active");
+    const mapWrap = node.closest(".mapWrap");
+    const pick = mapWrap ? document.getElementById(mapWrap.id.replace("map-", "pick-")) : null;
+    if (pick) pick.textContent = `${room}：显示座位号 ${seatNum}，实际 seat_id ${seatId}`;
+  });
+  document.querySelectorAll(`.seatRow[data-room="${cssEscape(room)}"][data-seat-num="${cssEscape(seatNum)}"][data-seat-id="${cssEscape(seatId)}"]`).forEach(row => row.classList.add("active"));
+  out(`${room}：显示座位号 ${seatNum}，实际 seat_id ${seatId}`);
+}
+
+function toggleSeatLabels(input, mapId) {
+  const map = document.getElementById(mapId);
+  if (map) map.classList.toggle("showLabels", input.checked);
+}
+
+function filterSeatRows() {
+  const keyword = $("seatSearch").value.trim().toLowerCase();
+  document.querySelectorAll(".seatRow").forEach(row => {
+    const hit = !keyword || row.dataset.seatNum.toLowerCase().includes(keyword) || row.dataset.seatId.toLowerCase().includes(keyword);
+    row.style.display = hit ? "" : "none";
+  });
+}
+
+async function dryRun() {
+  try {
+    const data = await api("/api/dry-run", {method: "POST"});
+    const lines = [`验证时段：${data.target.begin_text} ~ ${data.target.end_text}`, ""];
+    for (const row of data.rows) {
+      if (row.ok) {
+        lines.push(`通过  ${row.room_name}  显示座位号 ${row.seat_num}  -> seat_id ${row.seat_id}`);
+      } else {
+        lines.push(`失败  ${row.room_name}  显示座位号 ${row.seat_num}  -> ${row.error}`);
+      }
+    }
+    out(lines.join("\n"));
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function bookNow() {
+  if (!confirm("确定现在提交预约？")) return;
+  try {
+    out(await api("/api/book-now", {method: "POST"}));
+    await loadBookings();
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function loadTimedStatus(showOutput = true) {
+  try {
+    const data = await api("/api/timed-status");
+    renderTimedStatus(data);
+    if (showOutput) out(data);
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+function renderTimedStatus(data) {
+  const process = data.process || {};
+  const task = data.task || {};
+  const taskInstalled = task.returncode === 0;
+  $("triggerTime").textContent = data.trigger_time || "20:00";
+  $("dailyTaskState").textContent = taskInstalled ? "已安装" : "未安装或无法查询";
+  $("processState").textContent = process.running ? `运行中，PID ${process.pid}` : "未运行";
+
+  const rows = [
+    `<div class="timedRow"><span class="timedLabel">定时时间</span><span>${escapeHtml(data.trigger_time || "20:00")}</span></div>`,
+    `<div class="timedRow"><span class="timedLabel">本次进程</span><span>${process.running ? `运行中，等待到点抢座${process.pid ? `，PID ${process.pid}` : ""}` : "未运行"}</span></div>`,
+    `<div class="timedRow"><span class="timedLabel">每日任务</span><span>${taskInstalled ? "已安装" : "未安装或无法查询"}</span></div>`
+  ];
+  if (process.log_tail) rows.push(`<div class="logTail">${escapeHtml(process.log_tail)}</div>`);
+  $("timedStatus").innerHTML = rows.join("");
+}
+
+async function startTimedBooking() {
+  if (!confirm("启动后，网页服务会开一个后台进程等待到 20:00 再抢座。电脑和网页服务需要保持运行。继续？")) return;
+  try {
+    out(await api("/api/start-timed-booking", {method: "POST"}));
+    await loadTimedStatus(false);
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function stopTimedBooking() {
+  try {
+    out(await api("/api/stop-timed-booking", {method: "POST"}));
+    await loadTimedStatus(false);
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function installDailyTask() {
+  if (!confirm("这会安装 Windows 每日自动任务，每天到 config.yaml 的 trigger_time 自动运行抢座。继续？")) return;
+  try {
+    out(await api("/api/install-daily-task", {method: "POST"}));
+    await loadTimedStatus(false);
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function removeDailyTask() {
+  if (!confirm("确定删除 Windows 每日自动抢座任务？")) return;
+  try {
+    out(await api("/api/remove-daily-task", {method: "POST"}));
+    await loadTimedStatus(false);
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+async function testBookCancel() {
+  if (!confirm("测试会等待 20 秒，预约成功后立刻取消。继续？")) return;
+  try {
+    out("测试运行中，请等输出返回...");
+    out(await api("/api/test-book-cancel", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({wait_seconds: 20})}));
+    await loadBookings();
+  } catch (e) {
+    out(e.message);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[ch]));
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, "&#96;");
+}
+
+function cssEscape(value) {
+  if (window.CSS && CSS.escape) return CSS.escape(String(value ?? ""));
+  return String(value ?? "").replace(/["\\]/g, "\\$&");
+}
+
+loadAll();
+</script>
+</body>
+</html>
