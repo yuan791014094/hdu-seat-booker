@@ -1,0 +1,21 @@
+# 本地敏感配置
+config.yaml
+booking.json
+cookies.json
+
+# 运行输出
+*.log
+web_app_stdout.log
+web_app_stderr.log
+last_booking*.json
+自习室座位清单.md
+
+# Python
+__pycache__/
+*.pyc
+
+# 本地 Windows 脚本
+*.bat
+
+# 干净发布仓库
+.publish/

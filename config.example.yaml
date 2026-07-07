@@ -1,0 +1,27 @@
+# 杭电图书馆自习室抢座基础配置
+# 复制为 config.yaml 后再填写真实账号密码。
+
+account:
+  username: ""
+  password: ""
+
+booking:
+  # 建议保持 auto：20:00 前约明天，20:00 后约后天
+  date: "auto"
+
+  # 图书馆只支持整点
+  begin_hour: 12
+
+  # 留空表示从 begin_hour 自动约到 22:00
+  duration_hours:
+
+settings:
+  # 不加 --now 时，book.py 会等到这个时间再开始抢座
+  trigger_time: "20:00"
+
+  max_retries: 30
+  retry_interval: 1
+
+  # 自习室固定参数，不要改成阅览室、生活区等其他空间
+  category_id: "591"
+  content_id: "3"

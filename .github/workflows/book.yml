@@ -1,0 +1,46 @@
+name: 杭电图书馆自动抢座
+
+on:
+  schedule:
+    # UTC 时间，对应北京时间 20:00（你可以在下面"修改触发时间"部分改）
+    # 北京时间 = UTC + 8，所以 UTC 12:00 = 北京 20:00
+    - cron: '0 12 * * *'
+
+  # 也可以在 GitHub 网页上手动触发
+  workflow_dispatch:
+
+jobs:
+  book-seat:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install selenium requests pyyaml
+
+      - name: 安装 Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: 准备运行配置
+        env:
+          BOOKING_JSON: ${{ secrets.BOOKING_JSON }}
+        run: |
+          cp config.example.yaml config.yaml
+          if [ -z "$BOOKING_JSON" ]; then
+            echo "Missing GitHub secret: BOOKING_JSON"
+            exit 1
+          fi
+          printf '%s' "$BOOKING_JSON" > booking.json
+
+      - name: 运行抢座脚本
+        env:
+          HDU_USERNAME: ${{ secrets.HDU_USERNAME }}
+          HDU_PASSWORD: ${{ secrets.HDU_PASSWORD }}
+        run: python book.py --now

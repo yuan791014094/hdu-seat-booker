@@ -1,0 +1,13 @@
+{
+  "booking": {
+    "date": "auto",
+    "begin_hour": 12,
+    "duration_hours": 10
+  },
+  "seats_priority": [
+    {
+      "room_name": "宋韵云图（四楼）",
+      "seat_num": "96"
+    }
+  ]
+}
