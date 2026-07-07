@@ -3,8 +3,6 @@ $ErrorActionPreference = "SilentlyContinue"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $port = 8765
 $url = "http://127.0.0.1:$port"
-$stdoutLog = Join-Path $scriptDir "web_app_stdout.log"
-$stderrLog = Join-Path $scriptDir "web_app_stderr.log"
 
 Set-Location -LiteralPath $scriptDir
 
@@ -28,8 +26,7 @@ function Get-PythonLauncher {
 
 function Start-WebApp {
     $pythonExe = Get-PythonLauncher
-    $cmd = "cd /d `"$scriptDir`" && `"$pythonExe`" `"$scriptDir\web_app.py`" 1>>`"$stdoutLog`" 2>>`"$stderrLog`""
-    cmd.exe /c start "" /min cmd.exe /c $cmd | Out-Null
+    cmd.exe /c start "" /D "$scriptDir" /min "$pythonExe" "$scriptDir\web_app.py" | Out-Null
 }
 
 $listening = netstat -ano | Select-String ":$port .*LISTENING"

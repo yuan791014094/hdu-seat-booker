@@ -6,7 +6,13 @@ Login: Selenium for CAS when cookies are missing or expired.
 Booking: requests with saved cookies.
 """
 import io
+import os
 import sys
+
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w", encoding="utf-8", errors="replace")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w", encoding="utf-8", errors="replace")
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -18,7 +24,6 @@ import base64
 import datetime
 import hashlib
 import json
-import os
 import re
 import time
 from urllib.parse import urlparse
