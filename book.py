@@ -174,6 +174,28 @@ def find_first_key(node, wanted_keys):
     return None
 
 
+def collect_response_text(node):
+    if isinstance(node, dict):
+        parts = []
+        for key, value in node.items():
+            parts.append(str(key))
+            parts.extend(collect_response_text(value))
+        return parts
+    if isinstance(node, list):
+        parts = []
+        for item in node:
+            parts.extend(collect_response_text(item))
+        return parts
+    if node in (None, ""):
+        return []
+    return [str(node)]
+
+
+def is_already_booked_response(node):
+    text = " ".join(collect_response_text(node))
+    return "已有预约" in text or "请勿重复预约" in text or "重复预约" in text
+
+
 def format_cst_ts(value, fmt="%Y-%m-%d %H:%M"):
     try:
         value = int(value)
@@ -762,7 +784,22 @@ class LibraryBooker:
                     d,
                     ["bookingId", "booking_id", "bookId", "book_id", "orderId", "order_id"],
                 )
-                return {"ok": True, "seat": seat, "response": d, "booking_id": booking_id}
+                return {
+                    "ok": True,
+                    "seat": seat,
+                    "response": d,
+                    "booking_id": booking_id,
+                    "already_booked": False,
+                }
+            if is_already_booked_response(d):
+                log("检测到系统提示已有预约，停止继续抢座。")
+                return {
+                    "ok": True,
+                    "seat": seat,
+                    "response": d,
+                    "booking_id": None,
+                    "already_booked": True,
+                }
             log(f"{seat['room_name']} {seat['seat_num']} (seat_id={seat_id}) -> [{code}] {msg}")
             return {"ok": False, "seat": seat, "response": d, "booking_id": None}
         except Exception as e:
@@ -880,7 +917,10 @@ class LibraryBooker:
             log(f"第 {attempt}/{max_r} 轮")
             for target in seats:
                 log(f"尝试：{target['room_name']} {target['seat_num']}")
-                if self.book_seat(target, begin_ts, dur_sec):
+                result = self.book_seat_result(target, begin_ts, dur_sec)
+                if result.get("already_booked"):
+                    return True
+                if result.get("ok"):
                     return True
             if attempt < max_r:
                 time.sleep(interval)

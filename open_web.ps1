@@ -1,46 +1,18 @@
-$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$port = 8765
-$url = "http://127.0.0.1:$port"
-
 Set-Location -LiteralPath $scriptDir
 
-function Get-PythonLauncher {
-    $python = Get-Command python -ErrorAction SilentlyContinue
-    if ($python -and $python.Source) {
-        $pythonw = Join-Path (Split-Path -Parent $python.Source) "pythonw.exe"
-        if (Test-Path -LiteralPath $pythonw) {
-            return $pythonw
-        }
-        return $python.Source
-    }
-
-    $pythonw = Get-Command pythonw -ErrorAction SilentlyContinue
-    if ($pythonw -and $pythonw.Source) {
-        return $pythonw.Source
-    }
-
-    return "python"
+$python = Get-Command python -ErrorAction SilentlyContinue
+if ($python -and $python.Source) {
+    & $python.Source (Join-Path $scriptDir "start_web.py")
+    exit $LASTEXITCODE
 }
 
-function Start-WebApp {
-    $pythonExe = Get-PythonLauncher
-    cmd.exe /c start "" /D "$scriptDir" /min "$pythonExe" "$scriptDir\web_app.py" | Out-Null
+$py = Get-Command py -ErrorAction SilentlyContinue
+if ($py -and $py.Source) {
+    & $py.Source (Join-Path $scriptDir "start_web.py")
+    exit $LASTEXITCODE
 }
 
-$listening = netstat -ano | Select-String ":$port .*LISTENING"
-if (-not $listening) {
-    Start-WebApp
-}
-
-for ($i = 0; $i -lt 20; $i++) {
-    try {
-        Invoke-WebRequest -UseBasicParsing -Uri $url -TimeoutSec 1 | Out-Null
-        break
-    } catch {
-        Start-Sleep -Milliseconds 500
-    }
-}
-
-Start-Process $url
+throw "Python was not found. Please install Python or make sure the python command is available."

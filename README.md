@@ -102,13 +102,19 @@ settings:
 
 ## 本地网页使用
 
-启动网页：
+推荐用启动器打开网页：
 
 ```powershell
-python web_app.py
+python start_web.py
 ```
 
-浏览器打开：
+启动器会自动启动本地服务并打开浏览器。也可以在 Windows PowerShell 里运行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\open_web.ps1
+```
+
+浏览器地址：
 
 ```text
 http://127.0.0.1:8765
@@ -122,7 +128,11 @@ http://127.0.0.1:8765
 - `读取座位和平面图`：查看座位显示号和实际 `seat_id`
 - `安装每日自动抢座`：写入 Windows 任务计划
 
-也可以双击桌面快捷方式或项目里的打开脚本启动网页。
+如果你只想启动服务、不自动打开浏览器，也可以运行：
+
+```powershell
+python web_app.py
+```
 
 ## 首次登录
 
@@ -174,11 +184,7 @@ python query_seats.py --print
 
 也可以手动运行：
 
-```powershell
-python web_app.py
-```
-
-然后在网页里管理定时任务。
+先运行 `python start_web.py` 打开本地网页，然后在网页里管理定时任务。
 
 注意：
 
@@ -233,6 +239,8 @@ Settings -> Secrets and variables -> Actions -> New repository secret
 | --- | --- |
 | `book.py` | 预约主程序 |
 | `web_app.py` | 本地网页控制台 |
+| `start_web.py` | 自动启动本地网页并打开浏览器 |
+| `open_web.ps1` | Windows PowerShell 网页启动脚本 |
 | `query_seats.py` | 查询座位显示号和实际 `seat_id` |
 | `test_book_cancel.py` | 测试预约后立即取消 |
 | `config.example.yaml` | 配置模板 |
@@ -254,7 +262,7 @@ Settings -> Secrets and variables -> Actions -> New repository secret
 确认网页服务是否启动：
 
 ```powershell
-python web_app.py
+python start_web.py
 ```
 
 然后打开 `http://127.0.0.1:8765`。
